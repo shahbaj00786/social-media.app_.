@@ -9,6 +9,12 @@ export const SideBar = ({ sidebarOpen, setSidebarOpen }) => {
   const user=dummyUserData
   const {signOut}=useClerk()
 
+  const handleLogout = async () => {
+    await signOut();
+    // Perform other actions after logout if needed
+   
+  };
+
   return (
     <div
       className={`w-60 xl:w-72 bg-white border-r border-gray-200 flex flex-col justify-between items-center max-sm:absolute top-0 bottom-0 z-20 ${
@@ -44,7 +50,7 @@ export const SideBar = ({ sidebarOpen, setSidebarOpen }) => {
 
         </div>
 
-        <LogOut onClick={signOut} className="w-4.5 text-gray-400 hover:text-gray-700 transition cursor-pointer"/>
+        <LogOut onClick={handleLogout} className="w-4.5 text-gray-400 hover:text-gray-700 transition cursor-pointer"/>
 
       </div>
     </div>
