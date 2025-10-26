@@ -7,19 +7,26 @@ import { Messages } from "./pages/Message";
 import { Discover } from "./pages/Discover";
 import { Profile } from "./pages/Profile";
 import { CreatePost } from "./pages/CreatePost";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useAuth } from "@clerk/clerk-react";
 import { Layout } from "./pages/Layout";
 import { Toaster } from "react-hot-toast";
+import { useEffect } from "react";
 
 export const App = () => {
-  const user = useUser();
-  console.log(user)
+  const {user} = useUser();
+  const { getToken } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      getToken().then((token) => console.log(token));
+    }
+  }, [user]);
 
   return (
     <>
       <Toaster />
       <Routes>
-        <Route path="/" element={!user.isSignedIn ? <Login /> : <Layout />}>
+        <Route path="/" element={!user ? <Login /> : <Layout />}>
           <Route index element={<Feed />} />
           <Route path="messages" element={<Messages />} />
           <Route path="messages/:userId" element={<ChatBox />} />
@@ -33,5 +40,3 @@ export const App = () => {
     </>
   );
 };
-
-
