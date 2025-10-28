@@ -1,8 +1,9 @@
-import { imagekit } from "../configs/imagekit.js";
+import imagekit from "../configs/imagekit.js";
 import User from "../models/User.js";
 import fs from "fs";
 import Connections from "../models/Connections.js";
-import { connections } from "mongoose";
+import Post from "../models/Post.js";
+import { inngest } from "../inngest/index.js";
 
 //Get User Data using userId
 export const getUserData = async (req, res) => {
@@ -28,7 +29,6 @@ export const updateUserData = async (req, res) => {
     let { username, bio, location, full_name } = req.body;
 
     const tempUser = await User.findById(userId);
-    console.log(tempUser);
 
     !username && (username = tempUser.username);
 
@@ -53,6 +53,7 @@ export const updateUserData = async (req, res) => {
 
     if (profile) {
       const buffer = fs.readFileSync(profile.path);
+
       const response = await imagekit.upload({
         file: buffer,
         fileName: profile.originalname,
@@ -205,9 +206,14 @@ export const sendConnectionRequest = async (req, res) => {
     });
 
     if (!connection) {
-      await Connections.create({
+      const newConnection = await Connections.create({
         from_user_id: userId,
         to_user_id: id,
+      });
+
+      await inngest.send({
+        name: "app/connection-request",
+        data: { connectionId: newConnection._id },
       });
 
       return res.json({
@@ -284,6 +290,25 @@ export const acceptConnectionReq = async (req, res) => {
     await connection.save();
 
     res.json({ success: true, messsage: "Conenction accepted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Get user Profiles
+export const getUserProfiles = async (req, res) => {
+  try {
+    // const { profileId } = req.body; error
+
+    const profile = await User.findById(profileId);
+    if (!profile) {
+      return res.json({ success: false, message: "profile not found" });
+    }
+
+    const posts = await Post.find({ user: profile }).populate("user");
+
+    return res.json({ success: true, posts, profile });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
