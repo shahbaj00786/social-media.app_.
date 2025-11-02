@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 const connectDB = async () => {
   try {
     mongoose.connection.on("connected", () =>
@@ -12,4 +11,4 @@ const connectDB = async () => {
   }
 };
 
-export default connectDB
+export default connectDB;

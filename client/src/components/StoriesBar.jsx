@@ -1,17 +1,34 @@
 import { useEffect, useState } from "react";
-import { dummyStoriesData } from "../assets/assets";
 import { Plus } from "lucide-react";
 import moment from "moment";
 import { StoryModel } from "./StoryModel";
 import { StoryViewer } from "./StoryViewer";
+import { useAuth } from "@clerk/clerk-react";
+import api from "../api/axios";
+import toast from "react-hot-toast";
 
 export const StoriesBar = () => {
   const [stories, setStroies] = useState([]);
   const [showModel, setShowModal] = useState(false);
   const [viewStory, setViewStory] = useState(false);
+  const { getToken } = useAuth();
 
   const fetchStories = async () => {
-    setStroies(dummyStoriesData);
+    try {
+      const token = await getToken();
+      
+      const { data } = await api.get("/api/story/get", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (data.success) {
+        setStroies(data.stories);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
@@ -21,7 +38,6 @@ export const StoriesBar = () => {
   return (
     <div className="w-screen lg:max-w-2xl sm:w-[calc(100vw-240px)]  no-scrollbar overflow-x-auto px-4">
       <div className="flex gap-4 pb-5">
-        
         {/* Add Story Card */}
         <div
           onClick={() => setShowModal(true)}
@@ -81,9 +97,7 @@ export const StoriesBar = () => {
 
       {/* Add Story Modal */}
       {showModel && (
-        <StoryModel
-          setShowModal={setShowModal}
-        />
+        <StoryModel setShowModal={setShowModal} fetchStories={fetchStories} />
       )}
 
       {/* View Story Modal */}

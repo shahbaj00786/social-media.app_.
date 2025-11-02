@@ -8,7 +8,14 @@ import { inngest } from "../inngest/index.js";
 //Get User Data using userId
 export const getUserData = async (req, res) => {
   try {
-    const { userId } = req.auth();
+    const { userId } = req.auth;
+
+    if (!userId) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized: No user ID" });
+    }
+
     const user = await User.findById(userId);
     if (!user) {
       return res.json({ success: false, message: "User not found" });
@@ -16,8 +23,8 @@ export const getUserData = async (req, res) => {
 
     res.json({ success: true, user });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -76,6 +83,7 @@ export const updateUserData = async (req, res) => {
         file: buffer,
         fileName: profile.originalname,
       });
+
       const url = imagekit.url({
         path: response.filePath,
         transformation: [
@@ -200,8 +208,8 @@ export const sendConnectionRequest = async (req, res) => {
     // check if users are already connected
     const connection = await Connections.findOne({
       $or: [
-        { row_user_id: userId, to_user_id: id },
-        { row_user_id: id, to_user_id: userId },
+        { from_user_id: userId, to_user_id: id },
+        { from_user_id: id, to_user_id: userId },
       ],
     });
 
@@ -242,7 +250,7 @@ export const getUserConnections = async (req, res) => {
   try {
     const { userId } = req.auth();
     const user = await User.findById(userId).populate(
-      "connections, followers following"
+      "connections followers following"
     );
 
     const connections = user.connections;
@@ -256,7 +264,13 @@ export const getUserConnections = async (req, res) => {
       }).populate("from_user_id")
     ).map((connection) => connection.from_user_id);
 
-    res.json({ success: true, connections, followers, following });
+    res.json({
+      success: true,
+      connections,
+      followers,
+      following,
+      pendingConnections,
+    });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -299,7 +313,7 @@ export const acceptConnectionReq = async (req, res) => {
 // Get user Profiles
 export const getUserProfiles = async (req, res) => {
   try {
-    // const { profileId } = req.body; error
+    const { profileId } = req.body;
 
     const profile = await User.findById(profileId);
     if (!profile) {

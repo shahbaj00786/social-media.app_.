@@ -5,10 +5,19 @@ import connectDB from "./configs/db.js";
 import { inngest, functions } from "./inngest/index.js";
 import { serve } from "inngest/express";
 import { clerkMiddleware } from "@clerk/express";
+
 import userRouter from "./routes/userRoutes.js";
 import postRouter from "./routes/postRoutes.js";
 import storyRouter from "./routes/storyRouter.js";
 import messageRouter from "./routes/messageRoute.js";
+
+
+app.use(cors({
+  origin: [
+    "http://localhost:5173", 
+  ],
+  credentials: true
+}));
 
 const app = express();
 

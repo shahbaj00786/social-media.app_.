@@ -23,7 +23,6 @@ export const addPost = async (req, res) => {
             folder: "posts",
           });
 
-         
           const url = imagekit.url({
             path: response.filePath,
             transformation: [
@@ -55,6 +54,7 @@ export const addPost = async (req, res) => {
 export const getFeddPosts = async (req, res) => {
   try {
     const { userId } = req.auth();
+    console.log("post userId " + userId);
     const user = await User.findById(userId);
 
     // User connections and following
@@ -91,5 +91,3 @@ export const likePost = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-
-

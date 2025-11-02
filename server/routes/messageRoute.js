@@ -10,7 +10,7 @@ import { protect } from "../middleware/auth.js";
 const messageRouter = express.Router();
 
 messageRouter.get("/:userId", sseController);
-messageRouter.get("/send", upload.single("image"), protect, sendMessage);
-messageRouter.get("/get", protect, getChartMessages);
+messageRouter.post("/send", upload.single("image"), protect, sendMessage);
+messageRouter.post("/get", protect, getChartMessages);
 
-export default messageRouter
+export default messageRouter;

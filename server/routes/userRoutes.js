@@ -18,7 +18,7 @@ const userRouter = express.Router();
 
 userRouter.get("/data", getUserData);
 userRouter.post(
-  "/updated",
+  "/update",
   upload.fields([
     { name: "profile", maxCount: 1 },
     { name: "cover", maxCount: 1 },
@@ -32,7 +32,7 @@ userRouter.post("/unfollow", protect, unFollowUsers);
 userRouter.post("/connect", protect, sendConnectionRequest);
 userRouter.post("/accept", protect, acceptConnectionReq);
 userRouter.post("/connections", protect, getUserConnections);
-userRouter.get("/profiles", protect, getUserProfiles);
-userRouter.get('/recent-messages', protect, getUserRecentMessages)
+userRouter.post("/profiles", protect, getUserProfiles);
+userRouter.get("/recent-messages", protect, getUserRecentMessages);
 
 export default userRouter;

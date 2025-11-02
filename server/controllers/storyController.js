@@ -33,9 +33,9 @@ export const addUserStory = async (req, res) => {
 
     // schedule story deletion after 24 hours
     await inngest.send({
-      name:'app/story.delete',
-      data:{storyId:story._id}
-    })
+      name: "app/story.delete",
+      data: { storyId: story._id },
+    });
 
     res.json({ success: true });
   } catch (error) {
@@ -58,7 +58,7 @@ export const getStories = async (req, res) => {
     })
       .populate("user")
       .sort({ createdAt: -1 });
-    res.json({ success: false, stories });
+    res.json({ success: true, stories });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });

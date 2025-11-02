@@ -57,6 +57,16 @@ export const sendMessage = async (req, res) => {
       });
     }
 
+    const message = await Message.create({
+      from_user_id: userId,
+      to_user_id,
+      text,
+      message_type,
+      media_url,
+    });
+
+    res.json({ success: true, message });
+
     //Send message to to_user_id using SSE
     const messageWithUserData = await Message.findById(message._id).populate(
       "from_user_id"
@@ -102,12 +112,10 @@ export const getChartMessages = async (req, res) => {
 export const getUserRecentMessages = async (req, res) => {
   try {
     const { userId } = req.auth();
-    const messages = (
-      await Message.find({ to_user_id: userId }).populate(
-        "from_user_id to_user_id"
-      )
-    ).sort({ created_at: -1 });
-     res.json({ success: true, messages})
+    const messages = await Message.find({ to_user_id: userId })
+      .populate("from_user_id to_user_id")
+      .sort({ created_at: -1 });
+    res.json({ success: true, messages });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
